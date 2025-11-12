@@ -23,8 +23,12 @@ def proxy_image(request):
         return HttpResponse('No URL provided', status=400)
     
     try:
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
+        }
+        
         # Fetch image from external source
-        response = requests.get(image_url, timeout=10)
+        response = requests.get(image_url, headers=headers, timeout=10)
         response.raise_for_status()
         
         # Return the image with proper content type
@@ -33,6 +37,10 @@ def proxy_image(request):
             content_type=response.headers.get('Content-Type', 'image/jpeg')
         )
     except requests.RequestException as e:
+        print("\n--- PROXY IMAGE CRASH ---")
+        print(f"Failed to fetch: {image_url}")
+        print(f"The error was: {e}") # <-- THIS IS THE IMPORTANT LINE
+        print("-------------------------\n")
         return HttpResponse(f'Error fetching image: {str(e)}', status=500)
 
 @csrf_exempt
